@@ -1,12 +1,8 @@
-# react-dnd-kit-tailwind-shadcn-ui Example
+# OXYGEST
 
-This repository provides an example of how to build an accessible Kanban board using the following technologies:
+Ce référentiel fournit un exemple de la façon de créer un tableau Kanban interconnecter à un GLPI accessible à l'aide des technologies suivantes :
 
 - React
 - @dnd-kit
 - Tailwind
 - Shadcn/ui
-
-Demo: https://georgegriff.github.io/react-dnd-kit-tailwind-shadcn-ui/
-
-Developer instructions: [developer guide](/developer.md)
