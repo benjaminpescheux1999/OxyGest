@@ -32,6 +32,10 @@ interface TaskContextType {
   setActiveTask: React.Dispatch<React.SetStateAction<Task | null>>;
   pickedUpTaskColumn: React.MutableRefObject<string | null>;
   columnsId: string[];
+  users: IUser[];
+  setUsers: React.Dispatch<React.SetStateAction<IUser[]>>;
+  selectedFilterUsers: IUser[];
+  setSelectedFilterUsers: React.Dispatch<React.SetStateAction<IUser[]>>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -96,13 +100,17 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
   const { userActive } = useAuth();
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [selectedFilterUsers, setSelectedFilterUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
     if (userActive?.sessionToken) {
       setIsTokenLoaded(true);
-      getTickets(); // Appeler getTickets seulement quand sessionToken est disponible
+      if(selectedFilterUsers.length > 0) {
+        getTickets(); // Appeler getTickets seulement quand sessionToken est disponible
+      }
     }
-  }, [userActive]);
+  }, [userActive && selectedFilterUsers]);
 
   function getStatusColumnId(status: number): string {
     switch (status) {
@@ -135,8 +143,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     for (const ticket of responseData) {
       const applicants: IUser[] = [];
       const observers: IUser[] = [];
-      const attributedTo: IUser[] = [];
-
+      const attributedTo: IUser[] = [];      
       const ticketUsersResponse = await axios.get(`http://localhost:8080/glpi/apirest.php/Ticket/${ticket.id}/Ticket_User/?session_token=${userActive.sessionToken}`);
 
       if (ticketUsersResponse.data.length > 0) {
@@ -164,21 +171,44 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
 
-      // Ajouter le ticket avec les utilisateurs à la liste des tickets
-      tickets.push({
-        id: ticket.id,
-        columnId: getStatusColumnId(ticket.status),
-        description: ticket.content,
-        name: ticket.name,
-        visible: true,
-        status: ticket.status,
-        applicants: applicants,
-        observers: observers,
-        attributedTo: attributedTo,
-      });
+      // Filtrer les tickets où l'utilisateur attribué est dans selectedFilterUsers
+      const isUserSelected = attributedTo.some(user => selectedFilterUsers.map(u => u.id).includes(user.id));
+      if (isUserSelected) {
+        tickets.push({
+          id: ticket.id,
+          columnId: getStatusColumnId(ticket.status),
+          description: ticket.content,
+          name: ticket.name,
+          visible: true,
+          status: ticket.status,
+          applicants: applicants,
+          observers: observers,
+          attributedTo: attributedTo,
+        });
+      }
     }
     setTasks(tickets);
   };
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/glpi/apirest.php/User/?session_token=p2328bdi62rlhait6ctuamg3is');
+        const fetchedUsers = response.data.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          realname: user.realname || '',
+          firstname: user.firstname || ''
+        }));
+        setUsers(fetchedUsers);
+        setSelectedFilterUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
   
   const deleteTicketUserRelation = async (relationId: number) => {
     const config = {
@@ -323,7 +353,7 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   return (
-    <TaskContext.Provider value={{ tasks, setTasks, handleDeleteTask, handleChangeTask, columns, setColumns, activeColumn, setActiveColumn, activeTask, setActiveTask, pickedUpTaskColumn, columnsId }}>
+    <TaskContext.Provider value={{ tasks, setTasks, handleDeleteTask, handleChangeTask, columns, setColumns, activeColumn, setActiveColumn, activeTask, setActiveTask, pickedUpTaskColumn, columnsId, users, setUsers, selectedFilterUsers, setSelectedFilterUsers }}>
       {children}
     </TaskContext.Provider>
   );

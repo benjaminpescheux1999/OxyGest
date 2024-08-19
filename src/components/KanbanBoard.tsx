@@ -22,6 +22,8 @@ import { type Task, TaskCard } from "./TaskCard";
 import { hasDraggableData } from "./utils";
 import { coordinateGetter } from "./multipleContainersKeyboardPreset";
 import { useTaskContext } from './TaskContext';
+import MultiSelectFilter  from './ui/multiselectFilter';
+import MultiSelectFilterTest from './ui/multiselectfiltertest';
 
 export function KanbanBoard() {
   const { tasks, setTasks, columns, setColumns, activeColumn, setActiveColumn, activeTask, setActiveTask, handleChangeTask } = useTaskContext();
@@ -163,10 +165,19 @@ export function KanbanBoard() {
 
   return (
     <>
-    <div>
-      {/* Ajouter un filtre avec un select (liste de tous les utilisateurs) */}
-      
-    </div>
+      <div className="flex flex-col gap-4 border-2 rounded-lg p-2">
+        <h2 className="text-2xl font-bold mb-4">Filtrer les tickets</h2>
+        <div className="m-auto flex justify-between gap-4">
+          <div>
+            <label>Utilisateurs</label>
+            <MultiSelectFilter/>
+          </div>
+          <div>
+            <label>Statut</label>
+            <MultiSelectFilter/>
+          </div>
+        </div>
+      </div>  
       <DndContext
         accessibility={{
           announcements,
