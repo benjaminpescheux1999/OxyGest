@@ -60,11 +60,7 @@ const Modal: React.FC<ModalProps> = ({ task, onClose }) => {
     handleChangeTask(tempTask);
     onClose();
   };
-
-  useEffect(() => {
-    console.log(tempTask);
-  }, [tempTask]);
-
+  
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
       <div ref={modalRef} className="bg-background p-6 rounded-xl shadow-lg border border-white" style={{ pointerEvents: 'auto' }}>

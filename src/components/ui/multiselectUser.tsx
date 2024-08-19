@@ -40,9 +40,6 @@ export default function MultipleSelectUser({ applicants, observers, attributedTo
   }, []);
 
   useEffect(() => {
-    // console.log("selectedApplicants", selectedApplicants);
-    // console.log("selectedObservers", selectedObservers);
-    // console.log("selectedAttributedTo", selectedAttributedTo);
     setApplicants(selectedApplicants);
     setObservers(selectedObservers);
     setAttributedTo(selectedAttributedTo);
@@ -96,7 +93,7 @@ function ComboboxGroup({ label, selected, setSelected, users, setQuery }: { labe
                   <ComboboxOption
                     key={user.id}
                     className={({ active }) =>
-                      `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                      `relative cursor-default select-none py-2 pl-10 pr-4 dark:hover:bg-white dark:hover:text-black ${
                         active ? "bg-input dark:primary-foreground text-foreground dark:text-white" : ""
                       }`
                     }

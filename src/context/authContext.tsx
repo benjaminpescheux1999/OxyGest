@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         realname: responseData.session.glpirealname !== null ? responseData.session.glpirealname : responseData.session.glpiname,
         firstname: responseData.session.glpifirstname !== null ? responseData.session.glpifirstname : responseData.session.glpiname,
       }
-      console.log(userData);
       const newUserActive = { user: userData, sessionToken };
       setUserActive(newUserActive);
       // Sauvegarder dans le stockage local

@@ -110,7 +110,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
         </CardHeader>
         <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
           <h3 className="text-lg font-semibold">{task.name}</h3>
-          <div dangerouslySetInnerHTML={{ __html: decodeHtml(task.description) }} />
+          <div className="ellipsis-preview" dangerouslySetInnerHTML={{ __html: decodeHtml(task.description) }} />
           {(task.applicants && task.applicants.length > 0 || task.observers && task.observers.length > 0 || task.attributedTo && task.attributedTo.length > 0) && (
             <div className="flex -space-x-4 rtl:space-x-reverse float-right">
               {Array.from(new Set([...(task.applicants ?? []), ...(task.observers ?? []), ...(task.attributedTo ?? [])].map(user => user.id)))

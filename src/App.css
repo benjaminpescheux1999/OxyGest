@@ -39,3 +39,15 @@
 .read-the-docs {
   color: #888;
 }
+
+
+div.ellipsis-preview {
+    max-height: 75px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    box-orient: vertical;
+}

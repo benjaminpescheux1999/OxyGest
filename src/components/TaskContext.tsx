@@ -128,7 +128,6 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const response = await axios.request(configGetTask);
     const responseData = response.data;
-    console.log("responseData", responseData);
     const tickets: Task[] = [...new Set(initialTasks.map(task => task.id))].map(id => initialTasks.find(task => task.id === id)!);
 
     const userCache: Record<number, IUser> = {};
@@ -192,11 +191,8 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   
     await axios.request(config)
-      .then((response) => {
-        console.log('Deleted relation:', response.data);
-      })
       .catch((error) => {
-        console.log(error);
+        console.log("Deleted relation:", error);
       });
   };
   
@@ -208,13 +204,13 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
     
     const existingRelations = existingRelationsResponse.data;
-  
+    
     const updatedRelations = {
       applicants: task.applicants?.map(user => user.id),
       attributedTo: task.attributedTo?.map(user => user.id),
       observers: task.observers?.map(user => user.id),
     };
-  
+
     // Check for relations to delete
     for (const relation of existingRelations) {
       const userId = relation.users_id;
@@ -229,21 +225,40 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         await deleteTicketUserRelation(relationId);
       }
     }
-  
-    // Add or update relations
-    task && task.applicants && await updateTicketUserRelationList(task.applicants, 1, task.id);
-    task && task.attributedTo && await updateTicketUserRelationList(task.attributedTo, 2, task.id);
-    task && task.observers && await updateTicketUserRelationList(task.observers, 3, task.id);
+
+    // Add or update relations only if they are not already present
+    const existingApplicantIds = existingRelations.filter((r:any) => r.type === 1).map((r:any) => r.users_id);
+    const existingAttributedToIds = existingRelations.filter((r:any) => r.type === 2).map((r:any) => r.users_id);
+    const existingObserverIds = existingRelations.filter((r:any) => r.type === 3).map((r:any) => r.users_id);
+
+    const newApplicants = task.applicants?.filter(user => !existingApplicantIds.includes(user.id));
+    const newAttributedTo = task.attributedTo?.filter(user => !existingAttributedToIds.includes(user.id));
+    const newObservers = task.observers?.filter(user => !existingObserverIds.includes(user.id));
+
+    if (newApplicants && newApplicants.length > 0) {
+      await updateTicketUserRelationList(newApplicants, 1, task.id);
+    }
+    if (newAttributedTo && newAttributedTo.length > 0) {
+      await updateTicketUserRelationList(newAttributedTo, 2, task.id);
+    }
+    if (newObservers && newObservers.length > 0) {
+      await updateTicketUserRelationList(newObservers, 3, task.id);
+    }
   };
   
   const updateTicketUserRelationList = async (users: IUser[], relationType: number, ticketId: string) => {
     for (const user of users) {
-      await updateTicketUserRelation(ticketId, user.id, relationType);
+      // console.log("updateTicketUserRelationList ==> user", user);
+      
+        await updateTicketUserRelation(ticketId, user.id, relationType)
+        .catch((error) => {
+          console.log("updateTicketUserRelationList ==> error", error);
+        });
+
     }
   };
 
   const updateTicketUserRelation = async (ticketId: string, userId: number, relationType: number) => {
-    console.log("updateTicketUserRelation ==>", ticketId, userId, relationType);
   
     let data = JSON.stringify({
       "input": {
@@ -264,14 +279,10 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   
     const response = await axios.request(config)  // Envoi de la requête via Axios
-      .then((response) => {
-        console.log(JSON.stringify(response.data));  // Affichage de la réponse
-      })
       .catch((error) => {
-        console.log(error);  // Affichage de l'erreur en cas d'échec
+        console.log("updateTicketUserRelation ==> error", error);  // Affichage de l'erreur en cas d'échec
       });
   
-    console.log("updateTicketUserRelation ==>", response);  // Affichage de la réponse ou de l'erreur
     return response;  // Retourne la réponse de la requête
   };
   
@@ -292,23 +303,17 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
     await updateRelations(task);
     getTickets();
-    console.log(response);
   };
 
   useEffect(() => {
     getTickets();
   }, []);
 
-  useEffect(() => {
-    console.log("MASTER",tasks);
-  }, [tasks]);
-
   const handleDeleteTask = (taskId: string) => {
     setTasks((prevTasks) => prevTasks.filter(task => task.id !== taskId));
   };
 
   const handleChangeTask = (task: Task) => {
-    // console.log(task);
     updateTask(task);
   };
 
