@@ -163,6 +163,10 @@ export function KanbanBoard() {
 
   return (
     <>
+    <div>
+      {/* Ajouter un filtre avec un select (liste de tous les utilisateurs) */}
+      
+    </div>
       <DndContext
         accessibility={{
           announcements,

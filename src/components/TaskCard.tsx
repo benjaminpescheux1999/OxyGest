@@ -91,7 +91,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
         })}
         onClick={toggleModal} // Ajout de l'écouteur d'événement pour ouvrir la modal
       >
-        <CardHeader className="space-y-1.5 p-4 font-semibold border-b-2 text-left flex flex-row justify-between items-center w-full">
+        <CardHeader className="space-y-1.5 p-4 font-semibold border-b-2 text-left flex flex-row justify-between items-center w-full py-1.5">
             <Button
               variant={"ghost"}
               {...attributes}
@@ -109,6 +109,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
             <MenuDial task={task} view={toggleModal}/>
         </CardHeader>
         <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
+          <h3 className="text-lg font-semibold">{task.name}</h3>
           <div dangerouslySetInnerHTML={{ __html: decodeHtml(task.description) }} />
           {(task.applicants && task.applicants.length > 0 || task.observers && task.observers.length > 0 || task.attributedTo && task.attributedTo.length > 0) && (
             <div className="flex -space-x-4 rtl:space-x-reverse float-right">
